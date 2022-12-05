@@ -11,3 +11,8 @@
 
 # NodeJS
 node_modules
+
+# Go Examples
+*.exe
+/examples/go/producer/producer
+/examples/go/consumer/consumer
