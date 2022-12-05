@@ -83,6 +83,38 @@ For sharing links & "secrets".
 
 ![](./images/kafka_topic_replication.webp)
 
+## Kafka CLI
+
+Set bootstrap node envrironment variable
+
+```
+export BOOTSTRAP_SERVER=127.0.0.1:9092
+```
+
+### List Topics
+
+```
+kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --list
+```
+
+### Create Topic
+
+```
+kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --create --topic k-0-t-0 --partitions 3 --replication-factor 1
+```
+
+### Describe Topic
+
+```
+kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --describe --topic k-0-t-0
+```
+
+### Delete Topic
+
+```
+kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --delete --topic k-0-t-0
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
