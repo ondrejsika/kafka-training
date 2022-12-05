@@ -151,6 +151,30 @@ kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --delete --topic k-0-t-0
 kaf topic delete k-0-t-0
 ```
 
+## Console Producer
+
+```
+kafka-console-producer.sh --bootstrap-server $BOOTSTRAP_SERVER --topic foo
+```
+
+```
+kaf produce foo
+```
+
+## Console Consumer
+
+```
+kafka-console-consumer.sh --bootstrap-server $BOOTSTRAP_SERVER --topic foo
+```
+
+```
+kaf consume foo
+```
+
+```
+kaf consume foo -f
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
