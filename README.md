@@ -85,6 +85,26 @@ For sharing links & "secrets".
 
 ## Kafka CLI
 
+## Kaf
+
+Kafka CLI inspired by `kubectl` & `docker` written in Go.
+
+- https://github.com/birdayz/kaf
+
+```
+kaf config add-cluster local -b 127.0.0.1:9092
+```
+
+```
+kaf config select-cluster
+```
+
+Test it
+
+```
+kaf node ls
+```
+
 Set bootstrap node envrironment variable
 
 ```
@@ -97,10 +117,18 @@ export BOOTSTRAP_SERVER=127.0.0.1:9092
 kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --list
 ```
 
+```
+kaf topics
+```
+
 ### Create Topic
 
 ```
 kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --create --topic k-0-t-0 --partitions 3 --replication-factor 1
+```
+
+```
+kaf topic create k-0-t-0 -p 3 -r 1
 ```
 
 ### Describe Topic
@@ -109,10 +137,18 @@ kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --create --topic k-0-t-0 --
 kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --describe --topic k-0-t-0
 ```
 
+```
+kaf topic describe k-0-t-0
+```
+
 ### Delete Topic
 
 ```
 kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVER --delete --topic k-0-t-0
+```
+
+```
+kaf topic delete k-0-t-0
 ```
 
 ## Strimzi
