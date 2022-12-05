@@ -41,6 +41,60 @@ or watch
 watch -n 0.3 kubectl get pod -n kafka
 ```
 
+## Create Kafka Cluster using Strimzi
+
+Apply:
+
+```
+kubectl apply -f examples/strimzi/kafka-1.yml
+```
+
+See pods:
+
+```
+kubectl get pod -n kafka
+```
+
+or watch
+
+```
+watch -n 0.3 kubectl get pod -n kafka
+```
+
+Get kafkas
+
+```
+kubectl get kafka
+```
+
+```
+kubectl get k
+```
+
+Get Bootstrap servers
+
+```
+kubectl describe k kafka-1 | grep "Bootstrap Servers"
+```
+
+Create topic
+
+```
+kubectl apply -f examples/strimzi/kafka-1-topic-1.yml
+```
+
+Get topic
+
+```
+kubectl get -f examples/strimzi/kafka-1-topic-1.yml
+```
+
+Watch topic
+
+```
+watch -n 0.3 kubectl get -f examples/strimzi/kafka-1-topic-1.yml
+```
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
