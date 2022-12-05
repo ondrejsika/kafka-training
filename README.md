@@ -2,7 +2,42 @@
 
 # Kafka Training
 
+### Any Questions?
+
+Write me mail to <ondrej@sika.io>
+
 ## Course
+
+## About Me - Ondrej Sika
+
+**Freelance DevOps Engineer, Consultant & Lecturer**
+
+- Complete DevOps Pipeline
+- Open Source / Linux Stack
+- Cloud & On-Premise
+- Technologies: Gitlab CI, Docker, Kubernetes, Terraform, Prometheus, Elastic, AWS, Azure
+
+## Star, Create Issues, Fork, and Contribute
+
+Feel free to star this repository or fork it.
+
+If you found bug, create issue or pull request.
+
+Also feel free to propose improvements by creating issues.
+
+### Chat
+
+For sharing links & "secrets".
+
+- Slack - https://sikapublic.slack.com/
+- Microsoft Teams, Google Meet, ...
+- https://sika.link/chat (tlk.io)
+
+## DevOps Kniha (Czech only)
+
+[![](./images/devops_kniha.jpg)](https://kniha.sika.io)
+
+<https://kniha.sika.io>
 
 ## Kafka Theoretical Introduction
 
