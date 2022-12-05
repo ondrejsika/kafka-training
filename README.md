@@ -6,6 +6,41 @@
 
 Course will be here ...
 
+## Strimzi
+
+> Kafka on Kubernetes in a few minutes
+
+- https://strimzi.io/
+- https://strimzi.io/quickstarts/
+
+## Install Strimzi
+
+```
+kubectl create namespace kafka
+```
+
+```
+kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
+```
+
+See all Strimzi API resources (CRDs)
+
+```
+kubectl api-resources | grep strimzi.io
+```
+
+See operator's pod:
+
+```
+kubectl get pod -n kafka
+```
+
+or watch
+
+```
+watch -n 0.3 kubectl get pod -n kafka
+```
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
