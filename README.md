@@ -4,7 +4,49 @@
 
 ## Course
 
-Course will be here ...
+## Kafka Theoretical Introduction
+
+### Kafka Components
+
+- https://www.conduktor.io/kafka/kafka-fundamentals
+
+![](./images/kafka_components.webp)
+
+### Kafka Topics
+
+- https://www.conduktor.io/kafka/kafka-topics
+
+![](./images/kafka_topics.webp)
+
+![](./images/kafka_topic_partitions.webp)
+
+![](./images/kafka_topic_example.webp)
+
+### Kafka Producers
+
+- https://www.conduktor.io/kafka/kafka-producers
+
+![](./images/kafka_producers.webp)
+
+### Kafka Consumers
+
+- https://www.conduktor.io/kafka/kafka-consumers
+
+![](./images/kafka_consumers.webp)
+
+### Kafka Brokers
+
+- https://www.conduktor.io/kafka/kafka-brokers
+
+![](./images/kafka_brokers.webp)
+
+![](./images/kafka_brokers_partitions.webp)
+
+### Kafka Topic Replications
+
+- https://www.conduktor.io/kafka/kafka-topic-replication
+
+![](./images/kafka_topic_replication.webp)
 
 ## Strimzi
 
