@@ -45,7 +45,6 @@ func init() {
 		"",
 		"Consumer group ID",
 	)
-	Cmd.MarkFlagRequired("group-id")
 }
 
 func main() {
