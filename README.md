@@ -221,13 +221,13 @@ kubectl apply -f examples/strimzi/kafka-1.yml
 See pods:
 
 ```
-kubectl get pod -n kafka
+kubectl get kafka,pod -n kafka
 ```
 
 or watch
 
 ```
-watch -n 0.3 kubectl get pod -n kafka
+watch -n 0.3 kubectl get kafka,pod -n kafka
 ```
 
 Get kafkas
