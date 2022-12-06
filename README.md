@@ -273,6 +273,30 @@ watch -n 0.3 kubectl get -f examples/strimzi/kafka-1-topic-1.yml
 kubectl apply -f examples/strimzi/kafka-3.yml
 ```
 
+## Kafka Auth Example
+
+```
+kubectl apply -f examples/strimzi/kafka-4.yml
+```
+
+```
+kubectl apply -f examples/strimzi/kafka-4-topic-0.yml
+kubectl apply -f examples/strimzi/kafka-4-topic-1.yml
+```
+
+```
+kubectl apply -f examples/strimzi/kafka-4-user-0.yml
+kubectl apply -f examples/strimzi/kafka-4-user-1.yml
+```
+
+```
+kubectl get k,kt,ku
+```
+
+```
+kubectl describe secret k-4-u-0
+```
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
