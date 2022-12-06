@@ -243,7 +243,7 @@ kubectl get k
 Get Bootstrap servers
 
 ```
-kubectl describe k kafka-1 | grep "Bootstrap Servers"
+kubectl describe -f examples/strimzi/kafka-1.yml | grep "Bootstrap Servers"
 ```
 
 Create topic
