@@ -264,6 +264,15 @@ Watch topic
 watch -n 0.3 kubectl get -f examples/strimzi/kafka-1-topic-1.yml
 ```
 
+## Large HA Kafka Cluster
+
+- 3 Zookeepers
+- 3 Brokers with 4 disks
+
+```
+kubectl apply -f examples/strimzi/kafka-3.yml
+```
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
