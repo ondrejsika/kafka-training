@@ -96,6 +96,12 @@ kaf config add-cluster local -b 127.0.0.1:9092
 ```
 
 ```
+kaf config use-cluster local
+```
+
+or select cluster interactively
+
+```
 kaf config select-cluster
 ```
 
