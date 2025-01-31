@@ -8,7 +8,7 @@ Write me mail to <ondrej@sika.io>
 
 ## Course
 
-![Kafka Meme](./images/kafka_meme.jpg)
+![Kafka Meme](./images/kafka_meme_horizontal.jpg)
 
 ## About Me - Ondrej Sika
 
