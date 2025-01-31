@@ -8,6 +8,8 @@ Write me mail to <ondrej@sika.io>
 
 ## Course
 
+![Kafka Meme](./images/kafka_meme.jpg)
+
 ## About Me - Ondrej Sika
 
 **Freelance DevOps Engineer, Consultant & Lecturer**
