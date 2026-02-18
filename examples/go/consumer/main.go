@@ -98,6 +98,7 @@ func consume(
 			panic("could not read message " + err.Error())
 		}
 		fmt.Printf("consume: topic=%s key=%s msg=%s\n", topic, msg.Key, msg.Value)
+		fmt.Printf("sleeping for %s...\n", sleep)
 		time.Sleep(sleep)
 	}
 }

@@ -98,6 +98,7 @@ func produce(
 		}
 		fmt.Printf("produce: topic=%s key=%s msg=%s\n", topic, key, msg)
 		i++
+		fmt.Printf("sleeping for %s...\n", sleep)
 		time.Sleep(sleep)
 	}
 }
