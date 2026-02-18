@@ -25,6 +25,16 @@ func main() {
 		AllowAutoTopicCreation: true,
 	}
 
+	for {
+		conn, err := kafka.Dial("tcp", brokerAddr)
+		if err == nil {
+			conn.Close()
+			break
+		}
+		log.Printf("waiting for kafka: %v", err)
+		time.Sleep(time.Second)
+	}
+
 	for i := 0; ; i++ {
 		key := strconv.Itoa(i)
 		msg := "simple_" + strconv.Itoa(i)
