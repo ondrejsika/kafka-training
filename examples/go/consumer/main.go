@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var FlagBrokerAddr string
@@ -16,20 +18,30 @@ var Cmd = &cobra.Command{
 	Use:   "consumer",
 	Short: "Example Kafka consumer",
 	Run: func(cmd *cobra.Command, args []string) {
+		brokerAddr := viper.GetString("broker_addr")
+		if brokerAddr == "" {
+			fmt.Fprintln(os.Stderr, "error: broker-addr is required (--broker-addr flag, BROKER_ADDR env var, or .env file)")
+			os.Exit(1)
+		}
 		ctx := context.Background()
-		consume(ctx, FlagBrokerAddr, FlagTopic, FlagGroupID)
+		consume(ctx, brokerAddr, FlagTopic, FlagGroupID)
 	},
 }
 
 func init() {
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("dotenv")
+	_ = viper.ReadInConfig()
+	viper.AutomaticEnv()
+
 	Cmd.Flags().StringVarP(
 		&FlagBrokerAddr,
 		"broker-addr",
 		"b",
 		"",
-		"Broker address",
+		"Broker address (env: BROKER_ADDR)",
 	)
-	Cmd.MarkFlagRequired("broker-addr")
+	_ = viper.BindPFlag("broker_addr", Cmd.Flags().Lookup("broker-addr"))
 	Cmd.Flags().StringVarP(
 		&FlagTopic,
 		"topic",
