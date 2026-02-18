@@ -14,6 +14,7 @@ import (
 
 var FlagBrokerAddr string
 var FlagTopic string
+var FlagSleep int
 
 var Cmd = &cobra.Command{
 	Use:   "producer",
@@ -30,7 +31,7 @@ var Cmd = &cobra.Command{
 			os.Exit(1)
 		}
 		ctx := context.Background()
-		produce(ctx, brokerAddr, topic)
+		produce(ctx, brokerAddr, topic, time.Duration(FlagSleep)*time.Millisecond)
 	},
 }
 
@@ -56,6 +57,13 @@ func init() {
 		"Topic name (env: TOPIC)",
 	)
 	_ = viper.BindPFlag("topic", Cmd.Flags().Lookup("topic"))
+	Cmd.Flags().IntVarP(
+		&FlagSleep,
+		"sleep",
+		"s",
+		1000,
+		"Sleep duration between messages in milliseconds",
+	)
 }
 
 func main() {
@@ -66,6 +74,7 @@ func produce(
 	ctx context.Context,
 	brokerAddr string,
 	topic string,
+	sleep time.Duration,
 ) {
 	w := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: []string{brokerAddr},
@@ -88,6 +97,6 @@ func produce(
 		}
 		fmt.Printf("produce: topic=%s key=%s msg=%s\n", topic, key, msg)
 		i++
-		time.Sleep(time.Second)
+		time.Sleep(sleep)
 	}
 }
