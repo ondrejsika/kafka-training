@@ -19,12 +19,18 @@ var Cmd = &cobra.Command{
 	Short: "Example Kafka consumer",
 	Run: func(cmd *cobra.Command, args []string) {
 		brokerAddr := viper.GetString("broker_addr")
+		topic := viper.GetString("topic")
+		groupID := viper.GetString("group_id")
 		if brokerAddr == "" {
 			fmt.Fprintln(os.Stderr, "error: broker-addr is required (--broker-addr flag, BROKER_ADDR env var, or .env file)")
 			os.Exit(1)
 		}
+		if topic == "" {
+			fmt.Fprintln(os.Stderr, "error: topic is required (--topic flag, TOPIC env var, or .env file)")
+			os.Exit(1)
+		}
 		ctx := context.Background()
-		consume(ctx, brokerAddr, FlagTopic, FlagGroupID)
+		consume(ctx, brokerAddr, topic, groupID)
 	},
 }
 
@@ -47,16 +53,17 @@ func init() {
 		"topic",
 		"t",
 		"",
-		"Topic name",
+		"Topic name (env: TOPIC)",
 	)
-	Cmd.MarkFlagRequired("topic")
+	_ = viper.BindPFlag("topic", Cmd.Flags().Lookup("topic"))
 	Cmd.Flags().StringVarP(
 		&FlagGroupID,
 		"group-id",
 		"g",
 		"",
-		"Consumer group ID",
+		"Consumer group ID (env: GROUP_ID)",
 	)
+	_ = viper.BindPFlag("group_id", Cmd.Flags().Lookup("group-id"))
 }
 
 func main() {
