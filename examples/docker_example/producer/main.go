@@ -20,22 +20,12 @@ func main() {
 	}
 
 	w := &kafka.Writer{
-		Addr:                   kafka.TCP(brokerAddr),
-		Topic:                  TOPIC,
-		AllowAutoTopicCreation: true,
-	}
-
-	for {
-		conn, err := kafka.Dial("tcp", brokerAddr)
-		if err == nil {
-			conn.Close()
-			break
-		}
-		log.Printf("waiting for kafka: %v", err)
-		time.Sleep(time.Second)
+		Addr:  kafka.TCP(brokerAddr),
+		Topic: TOPIC,
 	}
 
 	for i := 0; ; i++ {
+	send:
 		key := strconv.Itoa(i)
 		msg := "simple_" + strconv.Itoa(i)
 		err := w.WriteMessages(context.Background(), kafka.Message{
@@ -43,7 +33,9 @@ func main() {
 			Value: []byte(msg),
 		})
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			time.Sleep(time.Second)
+			goto send
 		}
 		fmt.Printf("produced: key=%s msg=%s\n", key, msg)
 		time.Sleep(time.Second)
