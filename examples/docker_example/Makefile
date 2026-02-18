@@ -1,3 +1,7 @@
+default:
+	@make up
+	@make logs
+
 up:
 	docker compose up -d
 
