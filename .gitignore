@@ -8,6 +8,7 @@
 # Generic
 *.log
 *.backup
+.env
 
 # NodeJS
 node_modules
