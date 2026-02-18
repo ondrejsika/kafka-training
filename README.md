@@ -43,6 +43,14 @@ For sharing links & "secrets".
 
 ## Kafka Theoretical Introduction
 
+### What is Kafka?
+
+- https://docs.conduktor.io/learn/fundamentals/what-is-apache-kafka
+
+Apache Kafka is a **distributed event streaming platform** originally developed at LinkedIn and later open-sourced under the Apache Foundation. It exists to solve the problem of moving large volumes of data reliably and at high throughput between different systems and services in real time — acting as a central, durable message bus where producers publish events to named topics and consumers read them independently at their own pace.
+
+![What_is_Apache_Kafka](./images/What_is_Apache_Kafka.avif)
+
 ### Kafka Components
 
 - https://www.conduktor.io/kafka/kafka-fundamentals
