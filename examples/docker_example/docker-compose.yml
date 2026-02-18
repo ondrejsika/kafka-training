@@ -1,3 +1,4 @@
+name: kafka-example
 services:
   kafka:
     image: apache/kafka:4.1.1
