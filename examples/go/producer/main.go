@@ -20,12 +20,17 @@ var Cmd = &cobra.Command{
 	Short: "Example Kafka producer",
 	Run: func(cmd *cobra.Command, args []string) {
 		brokerAddr := viper.GetString("broker_addr")
+		topic := viper.GetString("topic")
 		if brokerAddr == "" {
 			fmt.Fprintln(os.Stderr, "error: broker-addr is required (--broker-addr flag, BROKER_ADDR env var, or .env file)")
 			os.Exit(1)
 		}
+		if topic == "" {
+			fmt.Fprintln(os.Stderr, "error: topic is required (--topic flag, TOPIC env var, or .env file)")
+			os.Exit(1)
+		}
 		ctx := context.Background()
-		produce(ctx, brokerAddr, FlagTopic)
+		produce(ctx, brokerAddr, topic)
 	},
 }
 
@@ -48,9 +53,9 @@ func init() {
 		"topic",
 		"t",
 		"",
-		"Topic name",
+		"Topic name (env: TOPIC)",
 	)
-	Cmd.MarkFlagRequired("topic")
+	_ = viper.BindPFlag("topic", Cmd.Flags().Lookup("topic"))
 }
 
 func main() {
