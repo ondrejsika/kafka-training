@@ -31,7 +31,7 @@ var Cmd = &cobra.Command{
 			os.Exit(1)
 		}
 		ctx := context.Background()
-		produce(ctx, brokerAddr, topic, time.Duration(FlagSleep)*time.Millisecond)
+		produce(ctx, brokerAddr, topic, time.Duration(viper.GetInt("sleep"))*time.Millisecond)
 	},
 }
 
@@ -62,8 +62,9 @@ func init() {
 		"sleep",
 		"s",
 		1000,
-		"Sleep duration between messages in milliseconds",
+		"Sleep duration between messages in milliseconds (env: SLEEP)",
 	)
+	_ = viper.BindPFlag("sleep", Cmd.Flags().Lookup("sleep"))
 }
 
 func main() {
