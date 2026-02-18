@@ -19,10 +19,11 @@ func main() {
 		brokerAddr = "127.0.0.1:9092"
 	}
 
-	w := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{brokerAddr},
-		Topic:   TOPIC,
-	})
+	w := &kafka.Writer{
+		Addr:                   kafka.TCP(brokerAddr),
+		Topic:                  TOPIC,
+		AllowAutoTopicCreation: true,
+	}
 
 	for i := 0; ; i++ {
 		key := strconv.Itoa(i)
