@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/spf13/cobra"
@@ -13,6 +14,7 @@ import (
 var FlagBrokerAddr string
 var FlagTopic string
 var FlagGroupID string
+var FlagSleep int
 
 var Cmd = &cobra.Command{
 	Use:   "consumer",
@@ -30,7 +32,7 @@ var Cmd = &cobra.Command{
 			os.Exit(1)
 		}
 		ctx := context.Background()
-		consume(ctx, brokerAddr, topic, groupID)
+		consume(ctx, brokerAddr, topic, groupID, time.Duration(FlagSleep)*time.Millisecond)
 	},
 }
 
@@ -64,6 +66,13 @@ func init() {
 		"Consumer group ID (env: GROUP_ID)",
 	)
 	_ = viper.BindPFlag("group_id", Cmd.Flags().Lookup("group-id"))
+	Cmd.Flags().IntVarP(
+		&FlagSleep,
+		"sleep",
+		"s",
+		1000,
+		"Sleep duration between messages in milliseconds",
+	)
 }
 
 func main() {
@@ -75,6 +84,7 @@ func consume(
 	brokerAddr string,
 	topic string,
 	groupID string,
+	sleep time.Duration,
 ) {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{brokerAddr},
@@ -87,5 +97,6 @@ func consume(
 			panic("could not read message " + err.Error())
 		}
 		fmt.Printf("consume: topic=%s key=%s msg=%s\n", topic, msg.Key, msg.Value)
+		time.Sleep(sleep)
 	}
 }
