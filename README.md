@@ -68,7 +68,7 @@ Performance-wise, Kafka wins at scale — it's designed for high-throughput sequ
 
 ### Kafka Core Concepts and Components
 
-![](./images/kafka_components.webp)
+![](./images/kafka_components.png)
 
 **Broker** — A single Kafka server that stores data and serves client requests. A Kafka cluster is made up of multiple brokers for redundancy and scalability; each broker holds some subset of the data.
 
