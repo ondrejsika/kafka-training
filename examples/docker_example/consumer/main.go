@@ -4,22 +4,27 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
 
+const BROKER_ADDR = "kafka:9092"
 const TOPIC = "example_simple"
 const GROUP_ID = "example_simple"
 
 func main() {
-	brokerAddr := os.Getenv("BROKER_ADDR")
-	if brokerAddr == "" {
-		brokerAddr = "127.0.0.1:9092"
+	for {
+		partitions, err := kafka.LookupPartitions(context.Background(), "tcp", BROKER_ADDR, TOPIC)
+		if err == nil && len(partitions) > 0 {
+			break
+		}
+		log.Printf("waiting for topic %s: %v", TOPIC, err)
+		time.Sleep(time.Second)
 	}
 
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{brokerAddr},
+		Brokers: []string{BROKER_ADDR},
 		Topic:   TOPIC,
 		GroupID: GROUP_ID,
 	})
