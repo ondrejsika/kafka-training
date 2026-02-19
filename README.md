@@ -86,6 +86,8 @@ These five concepts together define Kafka's entire data model — everything els
 
 - https://docs.conduktor.io/learn/fundamentals/topics
 
+![](./images/Kafka_Single_Topic.avif)
+
 A **topic** is the fundamental unit of organization in Kafka — a named, append-only, ordered log of messages. Here's everything important about topics:
 
 **Partitions** — Every topic is split into one or more partitions, each being an independent ordered log stored on a broker. Partitions are the unit of parallelism: more partitions = more consumers can read in parallel. You set the partition count at topic creation (increasing later is possible but tricky, decreasing is not supported).
