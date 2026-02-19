@@ -134,6 +134,17 @@ A **producer** is a client application that publishes messages to Kafka topics. 
 
 **Transactions** — Producers can write to multiple partitions atomically using Kafka transactions (`transactional.id`), enabling exactly-once semantics across multiple topics — the foundation of Kafka Streams' exactly-once processing.
 
+### Kafka Message Structure
+
+![](./images/Kafka_Message.avif)
+
+- **Key** - Key is optional in the Kafka message and it can be null. A key may be a string, number, or any object and then the key is serialized into binary format.
+- **Value** - The value represents the content of the message and can also be null. The value format is arbitrary and is then also serialized into binary format.
+- **Compression Type** - Kafka messages may be compressed. The compression type can be specified as part of the message. Options are none, gzip, lz4, snappy, and zstd
+- **Headers** - There can be a list of optional Kafka message headers in the form of key-value pairs. It is common to add headers to specify metadata about the message, especially for tracing.
+- **Partition + Offset** - Once a message is sent into a Kafka topic, it receives a partition number and an offset id. The combination of topic+partition+offset uniquely identifies the message
+- **Timestamp** - A timestamp is added either by the user or the system in the message.
+
 ### Kafka Consumers
 
 - https://www.conduktor.io/kafka/kafka-consumers
