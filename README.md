@@ -121,6 +121,8 @@ A **producer** is a client application that publishes messages to Kafka topics. 
 - With key → `hash(key) % num_partitions`, guaranteeing same key always lands in same partition
 - Custom partitioner → implement your own logic
 
+![](./images/Kafka_Partioning.avif)
+
 **Batching & throughput** — Producers don't send messages one by one; they batch messages destined for the same partition. Two key configs control this: `linger.ms` (how long to wait to fill a batch) and `batch.size` (max batch size in bytes). Higher values = better throughput, higher latency.
 
 **Acknowledgments (`acks`)** — Controls durability vs speed tradeoff:
