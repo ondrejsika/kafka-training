@@ -355,6 +355,50 @@ helm upgrade --install \
   --wait
 ```
 
+## Apache Kafka vs Confluent Kafka
+
+**Apache Kafka** is the open-source project maintained by the Apache Software Foundation. **Confluent Kafka** is a commercial platform built on top of Apache Kafka by the original creators of Kafka (from LinkedIn).
+
+### Core Kafka Engine
+
+Both use the same underlying Kafka broker. Confluent Kafka *is* Apache Kafka at its core — Confluent contributes heavily to the open-source project and ships the same broker.
+
+### Key Differences
+
+**Schema Registry**
+Apache Kafka has no built-in schema management. Confluent provides Schema Registry (Avro, JSON Schema, Protobuf) — though the open-source version is now available separately too.
+
+**Connectors (Kafka Connect)**
+Kafka Connect is open-source, but Confluent offers 200+ pre-built, certified connectors via Confluent Hub, plus a managed connector experience in Confluent Cloud.
+
+**ksqlDB / Kafka Streams**
+Stream processing with Kafka Streams is open-source. ksqlDB (SQL over Kafka) was created by Confluent — the core is open-source but some enterprise features are behind a paywall.
+
+**Control Center**
+Confluent's UI for monitoring, consumer lag, topic management, and schema browsing. Nothing comparable exists in vanilla Kafka (you'd use open-source tools like AKHQ, Redpanda Console, or Kafdrop).
+
+**Security & RBAC**
+Basic security (SSL, SASL) is in open-source Kafka. Fine-grained RBAC is a Confluent Enterprise feature.
+
+**Support & SLA**
+Apache Kafka = community support. Confluent = commercial support with SLAs.
+
+## Confluent License Change (important!)
+
+In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Community License** and **Confluent Server** (proprietary). This means you can't use certain Confluent components to build a competing managed Kafka service, but for most enterprise users this doesn't matter.
+
+## When to choose what
+
+**Choose Apache Kafka** when you want full open-source freedom, are comfortable assembling your own tooling stack (AKHQ, Kafdrop, custom monitoring), and want to avoid vendor lock-in.
+
+**Choose Confluent** when you want a batteries-included platform, need enterprise support, want managed cloud with minimal ops overhead, or need Schema Registry and Connect Hub out of the box.
+
+## Othler Kafka Alternatives / Distributions
+
+- **Redpanda** (Kafka-compatible, no JVM)
+- **MSK** (AWS managed Kafka)
+- **Azure Event Hubs** (Kafka protocol compatible)
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
