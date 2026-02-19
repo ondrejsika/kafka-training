@@ -323,6 +323,20 @@ kaskade admin -b 127.0.0.1:9092
 
 ![](./images/kafdrop_topic.png)
 
+### Install Kafdrop on Kubernetes
+
+```
+helm upgrade --install \
+  kafdrop \
+  --namespace kafdrop \
+  --create-namespace \
+  --repo https://helm.sikalabs.io \
+  simple-kafdrop \
+  --set host=kd-my-cluster.kafka.sikademo.com \
+  --set kafkaBootstrapServer=my-cluster-kafka-bootstrap.kafka.svc:9092 \
+  --wait
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
