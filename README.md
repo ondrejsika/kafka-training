@@ -337,6 +337,24 @@ helm upgrade --install \
   --wait
 ```
 
+### Install Kafdrop on OpenShift
+
+```
+helm upgrade --install \
+  kafdrop \
+  --namespace kafdrop \
+  --create-namespace \
+  --repo https://helm.sikalabs.io \
+  simple-kafdrop \
+  --set host=kd-egd.apps.egd.germanywestcentral.aroapp.io \
+  --set kafkaBootstrapServer=egd-kafka-bootstrap.kafka.svc:9092 \
+  --set tls=false \
+  --set ingressClassName=openshift-default \
+  --set ingressExtraAnnotations."route\.openshift\.io/termination"=edge \
+  --set ingressExtraAnnotations."route\.openshift\.io/insecureEdgeTerminationPolicy"=Redirect \
+  --wait
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
