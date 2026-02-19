@@ -290,6 +290,30 @@ kaf consume foo
 kaf consume foo -f
 ```
 
+## Terminal UI for Kafka
+
+# Kaskade (Python)
+
+- https://github.com/sauljabin/kaskade
+
+Install using Brew
+
+```
+brew install kaskade
+```
+
+Using pipx
+
+```
+pipx install kaskade
+```
+
+Run
+
+```
+kaskade admin -b 127.0.0.1:9092
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
