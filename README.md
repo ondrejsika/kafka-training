@@ -314,6 +314,15 @@ Run
 kaskade admin -b 127.0.0.1:9092
 ```
 
+## Kafdrop (simple web UI)
+
+- https://kafdrop.com/
+- https://github.com/obsidiandynamics/kafdrop
+
+![](./images/kafdrop_cluster.png)
+
+![](./images/kafdrop_topic.png)
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
