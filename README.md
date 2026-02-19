@@ -41,7 +41,7 @@ For sharing links & "secrets".
 
 <https://kniha.sika.io>
 
-## Kafka Theoretical Introduction
+## Kafka Theory
 
 ### What is Kafka?
 
