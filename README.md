@@ -153,6 +153,29 @@ A **producer** is a client application that publishes messages to Kafka topics. 
 
 ![](./images/kafka_consumers.webp)
 
+A **consumer** is a client application that reads messages from Kafka topics by tracking offsets.
+
+Key concepts:
+
+**Consumer Groups** — Consumers are organized into groups identified by `group.id`. Within a group, each partition is assigned to exactly one consumer — enabling parallel processing. If you have 6 partitions and 3 consumers in a group, each consumer handles 2 partitions. If consumers > partitions, some consumers sit idle. Multiple independent groups can read the same topic simultaneously without interfering — each group maintains its own offset.
+
+**Offset Management** — Consumers track their position via offsets. Offsets are committed back to Kafka (in the internal `__consumer_offsets` topic). Committing can be:
+- `enable.auto.commit=true` — commits automatically every `auto.commit.interval.ms` (simple but can cause duplicates or message loss)
+- Manual commit — `commitSync()` or `commitAsync()` after processing, giving full control over at-least-once semantics
+
+**Rebalancing** — When a consumer joins or leaves a group, Kafka triggers a **rebalance** to redistribute partitions among active consumers. During rebalancing, consumption is paused. Strategies include `RangeAssignor`, `RoundRobinAssignor`, and `CooperativeStickyAssignor` (minimizes partition movement, preferred in production).
+
+**Delivery Semantics** — Depending on when you commit offsets:
+- **At most once** — commit before processing (message lost if crash occurs)
+- **At least once** — commit after processing (duplicate processing possible on crash)
+- **Exactly once** — requires idempotent producers + transactions or Kafka Streams
+
+**Polling Model** — Kafka consumers use a pull model — the consumer calls `poll()` in a loop to fetch batches of messages. `max.poll.records` controls how many records are returned per poll, and `max.poll.interval.ms` defines how long Kafka waits between polls before considering the consumer dead and triggering a rebalance.
+
+**Lag** — Consumer lag is the difference between the latest offset in a partition and the consumer's current offset — a critical metric indicating how far behind a consumer is. High lag means the consumer can't keep up with the producer throughput.
+
+**Starting Position** — `auto.offset.reset` controls what happens when a consumer group has no committed offset: `earliest` (read from beginning), `latest` (read only new messages), or `none` (throw exception).
+
 ### Kafka Brokers
 
 - https://www.conduktor.io/kafka/kafka-brokers
