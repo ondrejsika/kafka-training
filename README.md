@@ -108,9 +108,31 @@ A **topic** is the fundamental unit of organization in Kafka — a named, append
 
 ### Kafka Producers
 
-- https://www.conduktor.io/kafka/kafka-producers
+- https://docs.conduktor.io/learn/fundamentals/producers
 
 ![](./images/kafka_producers.webp)
+
+A **producer** is a client application that publishes messages to Kafka topics. Key concepts:
+
+**Message structure** — Each message consists of a key (optional), value (the payload), timestamp, and optional headers. Both key and value are raw bytes, so serialization (JSON, Avro, Protobuf) is handled by the producer before sending.
+
+**Partitioning** — The producer decides which partition to send each message to:
+- No key → round-robin (or sticky partitioning in newer versions for batching efficiency)
+- With key → `hash(key) % num_partitions`, guaranteeing same key always lands in same partition
+- Custom partitioner → implement your own logic
+
+**Batching & throughput** — Producers don't send messages one by one; they batch messages destined for the same partition. Two key configs control this: `linger.ms` (how long to wait to fill a batch) and `batch.size` (max batch size in bytes). Higher values = better throughput, higher latency.
+
+**Acknowledgments (`acks`)** — Controls durability vs speed tradeoff:
+- `acks=0` — fire and forget, no confirmation
+- `acks=1` — leader broker confirms write (default)
+- `acks=all` — all in-sync replicas must confirm, strongest durability guarantee
+
+**Retries & idempotency** — Producers retry on transient failures by default. With `enable.idempotence=true` Kafka assigns each producer a PID and sequence numbers, guaranteeing exactly-once delivery to a single partition even if retries occur.
+
+**Compression** — Producers can compress batches with `snappy`, `lz4`, `gzip`, or `zstd` before sending, reducing network and storage overhead significantly.
+
+**Transactions** — Producers can write to multiple partitions atomically using Kafka transactions (`transactional.id`), enabling exactly-once semantics across multiple topics — the foundation of Kafka Streams' exactly-once processing.
 
 ### Kafka Consumers
 
