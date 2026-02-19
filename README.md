@@ -149,7 +149,7 @@ A **producer** is a client application that publishes messages to Kafka topics. 
 
 ### Kafka Consumers
 
-- https://www.conduktor.io/kafka/kafka-consumers
+- https://docs.conduktor.io/learn/fundamentals/consumers
 
 ![](./images/kafka_consumers.webp)
 
