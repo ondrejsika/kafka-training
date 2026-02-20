@@ -399,6 +399,12 @@ In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Comm
 - **MSK** (AWS managed Kafka)
 - **Azure Event Hubs** (Kafka protocol compatible)
 
+## Kafka Bridge
+
+Kafka Bridge is a component that provides a REST API interface to Apache Kafka, allowing HTTP-based clients to interact with Kafka without needing a native Kafka client.
+
+It acts as a proxy between HTTP clients and the Kafka cluster, translating RESTful requests into Kafka producer and consumer operations. This is particularly useful for applications that cannot use Kafka's native protocol or for integrating with systems that primarily communicate over HTTP.
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
