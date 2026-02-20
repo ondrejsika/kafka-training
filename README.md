@@ -399,6 +399,14 @@ In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Comm
 - **MSK** (AWS managed Kafka)
 - **Azure Event Hubs** (Kafka protocol compatible)
 
+## Kafka Mirror Maker 2
+
+Kafka MirrorMaker2 is an tool for replicating data between Kafka clusters, acting as a bridge that consumes messages from a source cluster and produces them into a destination cluster.
+
+MM2 consists of three internal connectors — MirrorSourceConnector for message replication, MirrorCheckpointConnector for offset translation, and MirrorHeartbeatConnector for monitoring replication lag.
+
+Common use cases include active-passive disaster recovery, multi-region data aggregation, and live cluster migrations, making MirrorMaker an essential component in any multi-cluster Kafka architecture.
+
 ## Kafka Bridge
 
 Kafka Bridge is a component that provides a REST API interface to Apache Kafka, allowing HTTP-based clients to interact with Kafka without needing a native Kafka client.
