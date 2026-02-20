@@ -405,6 +405,92 @@ Kafka Bridge is a component that provides a REST API interface to Apache Kafka, 
 
 It acts as a proxy between HTTP clients and the Kafka cluster, translating RESTful requests into Kafka producer and consumer operations. This is particularly useful for applications that cannot use Kafka's native protocol or for integrating with systems that primarily communicate over HTTP.
 
+### Kafka Bridge API
+
+Set `BRIDGE_URL` environment variable to your Kafka Bridge URL, e.g.
+
+```bash
+export BRIDGE_URL=https://my-bridge.kafka.sikademo.com
+```
+
+#### Health
+
+```
+curl -i $BRIDGE_URL/healthy
+```
+
+#### List Topics
+
+```
+curl -i $BRIDGE_URL/topics
+```
+
+#### Produce
+
+String
+
+```
+curl -i -X POST \
+  -H "Content-Type: application/vnd.kafka.json.v2+json" \
+  -d '{"records":[{"value":"Hello World"}]}' \
+  $BRIDGE_URL/topics/my-bridge-topic
+```
+
+JSON
+
+```
+curl -i -X POST \
+  -H "Content-Type: application/vnd.kafka.json.v2+json" \
+  -d '{"records":[{"value":{"hello":"World"}}]}' \
+  $BRIDGE_URL/topics/my-bridge-topic
+```
+
+#### Produce multiple records with keys
+
+```
+curl -i -X POST \
+  -H "Content-Type: application/vnd.kafka.json.v2+json" \
+  -d '{"records":[{"key":"key1","value":"Hello World"},{"key":"key2","value":"Ahoj Svete"}]}' \
+  $BRIDGE_URL/topics/my-bridge-topic
+```
+
+#### Create Consumer Instance
+
+```
+curl -i -X POST \
+  -H "Content-Type: application/vnd.kafka.v2+json" \
+  -d '{"name": "my-bridge-consumer-1", "format": "json", "auto.offset.reset": "earliest", "enable.auto.commit":true}' \
+  $BRIDGE_URL/consumers/my-bridge-group
+```
+
+#### Subscribe to Topic
+
+```
+curl -i -X POST \
+  $BRIDGE_URL/consumers/my-bridge-group/instances/my-bridge-consumer-1/subscription \
+  -H 'Content-Type: application/vnd.kafka.v2+json' \
+  -d '{"topics":["my-bridge-topic"]}' && echo "Subscribed."
+```
+
+### Poll for records
+
+first call may return empty while partitions are assigned
+
+```
+curl -i -X GET \
+  $BRIDGE_URL/consumers/my-bridge-group/instances/my-bridge-consumer-1/records \
+  -H 'Accept: application/vnd.kafka.json.v2+json'
+```
+
+# Delete the consumer instance
+
+clean up server-side state
+
+```
+curl -i -X DELETE \
+  $BRIDGE_URL/consumers/my-bridge-group/instances/my-bridge-consumer-1
+```
+
 ## Strimzi
 
 > Kafka on Kubernetes in a few minutes
