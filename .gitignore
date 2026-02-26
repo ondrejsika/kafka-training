@@ -9,6 +9,7 @@
 *.log
 *.backup
 .env
+*.local.md
 
 # NodeJS
 node_modules
