@@ -866,6 +866,64 @@ Stop and remove everything including volumes:
 make down-with-volumes
 ```
 
+## Kafka FAQ
+
+### How many brokers should I have?
+
+- **Development:** 1 broker is fine
+- **Production minimum:** 3 brokers (required for replication factor 3)
+- **Large scale:** scale in multiples of 3 (6, 9, 12...)
+
+### How many replicas (replication factor) should I set?
+
+Always **3 in production**. Set `min.insync.replicas=2` alongside it so at least 2 brokers must acknowledge a write. Replication factor must be ≤ number of brokers.
+
+### How many partitions should I create?
+
+Start with `partitions = number of consumers` in your consumer group. You can always increase partitions later but **never decrease**. Common starting points: 3–6 for low-traffic, 12–24 for medium, 48+ for high-throughput topics.
+
+### Does a producer write to multiple partitions?
+
+Yes. A producer writing messages with different keys will write to multiple partitions — Kafka routes each message by hashing its key. Without a key, Kafka uses round-robin across all partitions. One producer writing to many partitions is normal and expected.
+
+### Does a consumer read from multiple partitions?
+
+Yes. Within a consumer group, if there are more partitions than consumers, each consumer gets assigned multiple partitions. The max parallelism is `min(partitions, consumers_in_group)` — extra consumers beyond partition count sit idle.
+
+### What is the difference between consumer groups?
+
+- **Same group** — partitions are split among consumers, each message processed **once** (load balancing / work queue semantics)
+- **Different groups** — every group gets all messages independently (fan-out / pub-sub semantics)
+
+### When does adding more partitions NOT help?
+
+- **Key hotspot** — all messages share the same key, so they all land on the same partition regardless of how many partitions exist
+- **Consumer is the bottleneck** — slow processing (DB writes, heavy logic) won't improve with more partitions; fix the consumer first
+- **More partitions than consumers** — parallelism is already capped at consumer count; add consumers too
+- **Single slow producer** — if the producer process itself is the ceiling, more partitions don't help; run multiple producer instances
+- **Network/disk saturation** — if the broker's I/O is maxed out, redistribute load by adding brokers, not partitions
+- **Global ordering required** — you're forced to use 1 partition; more partitions break ordering guarantees
+
+### What is the naming convention for topics?
+
+Use `<domain>.<entity>.<event>` — for example `orders.order.created`, `payments.invoice.paid`. Keep topics coarse-grained; don't create a topic per tenant or per user.
+
+### What are the key producer settings for durability?
+
+```properties
+acks=all
+enable.idempotence=true
+retries=2147483647
+```
+
+### What are the key consumer settings for exactly-once semantics?
+
+```properties
+enable.auto.commit=false
+auto.offset.reset=earliest
+```
+Commit offsets manually after successful processing.
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
