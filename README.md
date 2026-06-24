@@ -536,12 +536,14 @@ or watch
 watch -n 0.3 kubectl get pod -n kafka
 ```
 
-## Create Kafka Cluster using Strimzi
+## Create Kafka Single Node Cluster using Strimzi
+
+Strimzi uses KRaft (no ZooKeeper) and requires a `KafkaNodePool` resource alongside the `Kafka` resource. The node pool defines the replicas, roles (controller, broker), and storage.
 
 Apply:
 
 ```
-kubectl apply -f examples/strimzi/kafka-1.yml
+kubectl apply -f examples/strimzi_single_node
 ```
 
 See pods:
@@ -566,28 +568,66 @@ kubectl get kafka
 kubectl get k
 ```
 
-Get Bootstrap servers
+Get Bootstrap servers using slu
 
 ```
-kubectl describe -f examples/strimzi/kafka-1.yml | grep "Bootstrap Servers"
+slu kafka all
+```
+
+Using kubectl
+
+```
+kubectl describe -n kafka -f examples/strimzi_single_node/kafka.yml | grep "Bootstrap Servers"
+```
+
+Get all in json
+
+```
+kubectl get -n kafka kafka my-single-node -o json | jq '.status.listeners[] | {name, bootstrapServers}'
+```
+
+Get plain
+
+```
+kubectl get -n kafka kafka my-single-node -o json | jq -r '.status.listeners[] | select(.name == "plain") | .bootstrapServers'
+```
+
+Get LB
+
+```
+kubectl get -n kafka kafka my-single-node -o json | jq -r '.status.listeners[] | select(.name == "lb") | .bootstrapServers'
+```
+
+Connect kaf from cluster
+
+```
+kaf config add-cluster my-single-node -b my-single-node-kafka-bootstrap.kafka:9092
+kaf config use-cluster my-single-node
+```
+
+Connect kaf from outside
+
+```
+kaf config add-cluster my-single-node -b my-single-node-kafka-bootstrap.kafka:9092
+kaf config use-cluster my-single-node
 ```
 
 Create topic
 
 ```
-kubectl apply -f examples/strimzi/kafka-1-topic-1.yml
+kubectl apply -f examples/strimzi_single_node/topics/kafka_topic_hello.yml
 ```
 
 Get topic
 
 ```
-kubectl get -f examples/strimzi/kafka-1-topic-1.yml
+kubectl get -f examples/strimzi_single_node/topics/kafka_topic_hello.yml
 ```
 
 Watch topic
 
 ```
-watch -n 0.3 kubectl get -f examples/strimzi/kafka-1-topic-1.yml
+watch -n 0.3 kubectl get -f examples/strimzi_single_node/topics/kafka_topic_hello.yml
 ```
 
 ## Large HA Kafka Cluster
