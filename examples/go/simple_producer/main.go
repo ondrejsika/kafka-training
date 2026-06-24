@@ -11,7 +11,7 @@ import (
 )
 
 const BROKER_ADDR = "127.0.0.1:9092"
-const TOPIC = "example_simple"
+const TOPIC = "simple"
 
 func main() {
 	w := kafka.NewWriter(kafka.WriterConfig{
@@ -21,7 +21,7 @@ func main() {
 
 	for i := 0; ; i++ {
 		key := strconv.Itoa(i)
-		msg := "simple_" + strconv.Itoa(i)
+		msg := "simple_go_" + strconv.Itoa(i)
 		err := w.WriteMessages(context.Background(), kafka.Message{
 			Key:   []byte(key),
 			Value: []byte(msg),
