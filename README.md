@@ -767,6 +767,52 @@ kubectl get k,kt,ku
 kubectl describe secret k-4-u-0
 ```
 
+## Debezium
+
+- https://debezium.io/
+
+Debezium is an open-source **Change Data Capture (CDC)** platform that tails a database's transaction log and streams every row-level insert, update, and delete as an event into Kafka. Instead of polling the database or modifying application code, Debezium reads the native replication stream, giving you a real-time, ordered feed of all data changes with very low overhead on the source database.
+
+### How it works
+
+Debezium runs as a set of **Kafka Connect source connectors**. Each connector is configured to watch one database, reads the transaction log (WAL in PostgreSQL, binlog in MySQL, redo log in Oracle, etc.), and publishes change events to Kafka topics — one topic per table by default. Each event contains the before and after state of the row, the operation type (`c` create, `u` update, `d` delete, `r` read/snapshot), and metadata like the source database, table, and transaction timestamp.
+
+### Supported Databases
+
+- **PostgreSQL** — reads the WAL via logical replication slots
+- **MySQL / MariaDB** — reads the binlog
+- **MongoDB** — reads the change stream (replica set required)
+- **Oracle** — reads the redo log (LogMiner)
+- **SQL Server** — reads the CDC tables
+- **Db2, Cassandra, Spanner** — community connectors
+
+### Key Use Cases
+
+- **Cache invalidation** — invalidate or refresh cache entries the moment a database row changes, without polling
+- **Search index sync** — keep Elasticsearch or OpenSearch in sync with the source database in real time
+- **Cross-service data replication** — propagate data changes to other microservices without tight coupling
+- **Audit log** — capture a durable, replayable history of every change made to your data
+- **Live database migration** — stream changes from an old database to a new one with minimal downtime
+
+### Event Structure
+
+Each Debezium event is a Kafka message with a structured envelope:
+
+```json
+{
+  "before": { "id": 1, "name": "Alice" },
+  "after":  { "id": 1, "name": "Alicia" },
+  "op": "u",
+  "source": { "db": "mydb", "table": "users", "ts_ms": 1718000000000 }
+}
+```
+
+`before` is `null` for inserts; `after` is `null` for deletes.
+
+### Snapshot vs Streaming
+
+When a connector starts for the first time it performs an **initial snapshot** — reading the current state of all rows and emitting a `r` (read) event for each. After the snapshot completes it switches to **streaming** mode, tailing the transaction log for ongoing changes. This ensures consumers get a complete, consistent view of the data from day one.
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
