@@ -608,7 +608,7 @@ kaf config use-cluster my-single-node
 Connect kaf from outside
 
 ```
-kaf config add-cluster my-single-node -b my-single-node-kafka-bootstrap.kafka:9092
+kaf config add-cluster my-single-node -b $(slu kafka bootstrap -k my-single-node -l lb)
 kaf config use-cluster my-single-node
 ```
 
