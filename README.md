@@ -223,6 +223,59 @@ Replication keeps copies of each partition on multiple brokers to ensure durabil
 
 **RBAC** — Role-based access control available in Confluent Enterprise and some other distributions. Assigns permissions via roles rather than per-resource ACL entries — simpler to manage at scale.
 
+### Kafka Listeners
+
+A **listener** is a network endpoint on which a Kafka broker accepts connections. Brokers can expose multiple listeners simultaneously — for example one for internal cluster traffic and one for external clients — each with its own protocol and port.
+
+**Two key broker configs:**
+
+- `listeners` — the address the broker actually binds to (what the OS listens on)
+- `advertised.listeners` — the address the broker tells clients to connect to (what clients use after discovery)
+
+These differ when the broker is behind a load balancer, NAT, or Kubernetes service — the broker binds on a private address but advertises a public one.
+
+**Listener protocols:**
+
+| Protocol | Transport | Authentication |
+|---|---|---|
+| `PLAINTEXT` | no TLS | none |
+| `SSL` | TLS | mTLS (optional) |
+| `SASL_PLAINTEXT` | no TLS | SASL (PLAIN, SCRAM, GSSAPI, OAUTHBEARER) |
+| `SASL_SSL` | TLS | SASL |
+
+**Typical multi-listener setup:**
+
+```properties
+listeners=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9094
+advertised.listeners=INTERNAL://broker-1.kafka.svc:9092,EXTERNAL://kafka.example.com:9094
+listener.security.protocol.map=INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_SSL
+inter.broker.listener.name=INTERNAL
+```
+
+- `INTERNAL` — used for broker-to-broker replication and in-cluster clients; SASL without TLS is acceptable on a private network
+- `EXTERNAL` — used by clients outside the cluster; always use TLS here
+- `inter.broker.listener.name` — tells Kafka which listener to use for replication between brokers
+
+**In Strimzi (Kubernetes)**, listeners are defined in the `Kafka` CR and Strimzi generates the broker config automatically:
+
+```yaml
+listeners:
+  - name: plain
+    port: 9092
+    type: internal
+    tls: false
+  - name: tls
+    port: 9093
+    type: internal
+    tls: true
+  - name: lb
+    port: 9094
+    type: loadbalancer
+    tls: true
+```
+
+Each listener type (`internal`, `loadbalancer`, `nodeport`, `ingress`, `route`) results in a different Kubernetes service and a different advertised address — Strimzi handles the advertised.listeners wiring for you.
+
 ## Kafka CLI
 
 The main CLI tools for interacting with Kafka are the built-in shell scripts (`kafka-topics.sh`, `kafka-console-producer.sh`, etc.) bundled with every Kafka installation, and `kaf` — a modern, developer-friendly alternative.
