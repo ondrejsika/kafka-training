@@ -1,2 +1,5 @@
 run:
-	pipenv run python main.py
+	uv run python main.py
+
+install-uv:
+	curl -LsSf https://astral.sh/uv/install.sh | sh
