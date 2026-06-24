@@ -196,6 +196,29 @@ Replication keeps copies of each partition on multiple brokers to ensure durabil
 
 ![](./images/kafka_topic_replication.webp)
 
+### Kafka Security
+
+- **authentication**: who is connecting?
+- **authorization**: what are they allowed to do?
+
+#### Kafka Authentication
+
+**SASL/PLAIN** — Username and password sent in cleartext. Simple to configure, but must always be combined with TLS encryption in production to avoid credential leakage.
+
+**SASL/SCRAM-SHA-256 and SCRAM-SHA-512** — Challenge-response mechanism; credentials are salted and hashed so the password is never transmitted directly. Credentials are stored in KRaft metadata. The preferred SASL option for most deployments that don't require Kerberos.
+
+**SASL/GSSAPI (Kerberos)** — Integrates with an existing Kerberos infrastructure (MIT Kerberos or Active Directory). Common in large enterprises with a centralized identity provider, but operationally heavy.
+
+**SASL/OAUTHBEARER** — Clients present a JWT token issued by an external OAuth 2.0 / OIDC provider (e.g. Keycloak, Okta). Good fit for cloud-native environments where identity is already centralized in an IdP.
+
+**mTLS (Mutual TLS)** — Both the broker and the client present X.509 certificates; the client is identified by the certificate's Distinguished Name (DN). Zero shared secrets, strong identity, but requires a PKI to manage certificate lifecycle.
+
+#### Kafka Authorization
+
+**ACLs (Access Control Lists)** — Kafka's built-in authorization model. Rules specify which principal can perform which operation (`Read`, `Write`, `Create`, `Describe`, `Delete`, `Alter`, `DescribeConfigs`, `AlterConfigs`) on which resource (topic, consumer group, cluster). Managed via `kafka-acls.sh` or the Admin API, and stored in KRaft metadata.
+
+**RBAC** — Role-based access control available in Confluent Enterprise and some other distributions. Assigns permissions via roles rather than per-resource ACL entries — simpler to manage at scale.
+
 ## Kafka CLI
 
 The main CLI tools for interacting with Kafka are the built-in shell scripts (`kafka-topics.sh`, `kafka-console-producer.sh`, etc.) bundled with every Kafka installation, and `kaf` — a modern, developer-friendly alternative.
