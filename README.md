@@ -294,7 +294,7 @@ kaf consume foo -f
 
 ## Terminal UI for Kafka
 
-# Kaskade (Python)
+## Kaskade (Python)
 
 - https://github.com/sauljabin/kaskade
 
@@ -482,7 +482,7 @@ curl -i -X POST \
   -d '{"topics":["my-bridge-topic"]}' && echo "Subscribed."
 ```
 
-### Poll for records
+#### Poll for records
 
 first call may return empty while partitions are assigned
 
@@ -492,7 +492,7 @@ curl -i -X GET \
   -H 'Accept: application/vnd.kafka.json.v2+json'
 ```
 
-# Delete the consumer instance
+#### Delete the consumer instance
 
 clean up server-side state
 
