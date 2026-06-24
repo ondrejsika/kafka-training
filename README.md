@@ -192,6 +192,8 @@ A **broker** is a single Kafka server process identified by a unique integer ID.
 
 - https://www.conduktor.io/kafka/kafka-topic-replication
 
+Replication keeps copies of each partition on multiple brokers to ensure durability. Each partition has exactly one **leader** (which handles all reads and writes) and one or more **followers** that replicate the leader's data. The subset of followers that are fully caught up forms the **ISR** (In-Sync Replicas) — if the leader fails, Kafka automatically elects a new leader from the ISR with no data loss.
+
 ![](./images/kafka_topic_replication.webp)
 
 ## Kafka CLI
