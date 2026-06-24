@@ -403,7 +403,7 @@ In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Comm
 
 ## Kafka Mirror Maker 2
 
-Kafka MirrorMaker2 is an tool for replicating data between Kafka clusters, acting as a bridge that consumes messages from a source cluster and produces them into a destination cluster.
+Kafka MirrorMaker2 is a tool for replicating data between Kafka clusters, acting as a bridge that consumes messages from a source cluster and produces them into a destination cluster.
 
 MM2 consists of three internal connectors — MirrorSourceConnector for message replication, MirrorCheckpointConnector for offset translation, and MirrorHeartbeatConnector for monitoring replication lag.
 
