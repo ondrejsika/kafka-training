@@ -642,6 +642,7 @@ kubectl apply -f examples/strimzi/kafka-3.yml
 ## Kafka Auth Example
 
 ```
+kubectl apply -f examples/strimzi/kafka-4-node-pool.yml
 kubectl apply -f examples/strimzi/kafka-4.yml
 ```
 

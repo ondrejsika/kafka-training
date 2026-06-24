@@ -1,12 +1,12 @@
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: k-4
   namespace: kafka
 spec:
   kafka:
-    version: 3.6.0
-    replicas: 3
+    version: 4.1.1
+    metadataVersion: 4.1-IV1
     listeners:
       - name: plain
         port: 9092
@@ -30,19 +30,12 @@ spec:
           type: tls
     authorization:
       type: simple
-    storage:
-      type: jbod
-      volumes:
-        - id: 0
-          type: persistent-claim
-          size: 1Gi
-          deleteClaim: false
-  zookeeper:
-    replicas: 1
-    storage:
-      type: persistent-claim
-      size: 1Gi
-      deleteClaim: false
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 3
+      default.replication.factor: 3
+      min.insync.replicas: 3
   entityOperator:
     topicOperator: {}
     userOperator: {}
