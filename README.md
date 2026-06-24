@@ -35,11 +35,15 @@ For sharing links & "secrets".
 - Microsoft Teams, Google Meet, ...
 - https://sika.link/chat (tlk.io)
 
+<!--
+
 ## DevOps Kniha (Czech only)
 
 [![](./images/devops_kniha.jpg)](https://kniha.sika.io)
 
 <https://kniha.sika.io>
+
+-->
 
 ## Kafka Theory
 
