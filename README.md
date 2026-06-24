@@ -817,6 +817,55 @@ Each Debezium event is a Kafka message with a structured envelope:
 
 When a connector starts for the first time it performs an **initial snapshot** — reading the current state of all rows and emitting a `r` (read) event for each. After the snapshot completes it switches to **streaming** mode, tailing the transaction log for ongoing changes. This ensures consumers get a complete, consistent view of the data from day one.
 
+### Debezium Example (Docker Compose)
+
+The example in `examples/debezium` runs Kafka (KRaft, single node), Kafka Connect with Debezium, and PostgreSQL locally via Docker Compose.
+
+Start everything:
+
+```
+cd examples/debezium
+make up
+```
+
+Wait for Connect to be ready, then register the PostgreSQL connector:
+
+```
+make register-connector
+```
+
+This registers the connector defined in `connector.json`, which watches the `public.users` table in the `demo` database. Debezium will snapshot the two seed rows immediately, then stream all future changes.
+
+Consume events from the topic:
+
+```
+make consume
+```
+
+Open a psql session and make changes to see them appear in Kafka in real time:
+
+```
+make psql
+```
+
+```sql
+INSERT INTO users (name, email) VALUES ('Charlie', 'charlie@example.com');
+UPDATE users SET name = 'Alicia' WHERE id = 1;
+DELETE FROM users WHERE id = 2;
+```
+
+Check connector status:
+
+```
+make status-connector
+```
+
+Stop and remove everything including volumes:
+
+```
+make down-with-volumes
+```
+
 ## Thank you! & Questions?
 
 That's it. Do you have any questions? **Let's go for a beer!**
