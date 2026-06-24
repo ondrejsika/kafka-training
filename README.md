@@ -194,6 +194,8 @@ Key concepts:
 
 ## Kafka CLI
 
+The main CLI tools for interacting with Kafka are the built-in shell scripts (`kafka-topics.sh`, `kafka-console-producer.sh`, etc.) bundled with every Kafka installation, and `kaf` — a modern, developer-friendly alternative.
+
 ## Kaf
 
 Kafka CLI inspired by `kubectl` & `docker` written in Go.
