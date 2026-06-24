@@ -1,7 +1,7 @@
 apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
-  name: my-kafka-0
+  name: my-single-node
 spec:
   kafka:
     version: 4.1.1

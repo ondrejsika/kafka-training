@@ -1,9 +1,9 @@
 apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
-  name: my-kafka-0
+  name: my-single-node
   labels:
-    strimzi.io/cluster: my-kafka-0
+    strimzi.io/cluster: my-single-node
 spec:
   replicas: 1
   roles:
