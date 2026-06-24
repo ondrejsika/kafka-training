@@ -220,7 +220,7 @@ Test it
 kaf node ls
 ```
 
-Set bootstrap node envrironment variable
+Set bootstrap node environment variable
 
 ```
 export BOOTSTRAP_SERVER=127.0.0.1:9092
@@ -393,7 +393,7 @@ In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Comm
 
 **Choose Confluent** when you want a batteries-included platform, need enterprise support, want managed cloud with minimal ops overhead, or need Schema Registry and Connect Hub out of the box.
 
-## Othler Kafka Alternatives / Distributions
+## Other Kafka Alternatives / Distributions
 
 - **Redpanda** (Kafka-compatible, no JVM)
 - **MSK** (AWS managed Kafka)
