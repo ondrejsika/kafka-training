@@ -192,6 +192,63 @@ A **broker** is a single Kafka server process identified by a unique integer ID.
 
 ![](./images/kafka_brokers_partitions.webp)
 
+### Kafka Node Types
+
+Since Kafka 3.3, Kafka runs in **KRaft mode** — ZooKeeper is gone and cluster metadata is managed by Kafka itself using the Raft consensus protocol. Each broker process is assigned one or more **roles** that define what it does in the cluster.
+
+**Roles:**
+
+**Controller** — manages cluster metadata: topic creation/deletion, partition leadership elections, broker membership. In KRaft, controllers form a quorum (typically 3) and elect a leader among themselves using Raft. They don't serve producer/consumer traffic.
+
+**Broker** — stores data and serves client requests (produce, fetch, consumer group coordination). This is the data plane.
+
+**Combined (controller + broker)** — a single process that acts as both. Simple to operate, fine for small clusters and development.
+
+**Topologies:**
+
+```
+# Combined — all nodes do everything (small clusters, dev)
+node-0: controller + broker
+node-1: controller + broker
+node-2: controller + broker
+
+# Dedicated — separated roles (large production clusters)
+node-0: controller only  ┐
+node-1: controller only  ├─ quorum (3 controllers)
+node-2: controller only  ┘
+node-3: broker only  ┐
+node-4: broker only  ├─ data plane (scale independently)
+node-5: broker only  ┘
+```
+
+**When to use dedicated controllers:**
+
+- Large clusters (10+ brokers) where controller load could impact broker performance
+- When you want to scale brokers independently without touching the controller quorum
+- High-throughput clusters where partition leadership elections under load matter
+
+**In Strimzi**, roles are set in the `KafkaNodePool` resource:
+
+```yaml
+# Combined
+spec:
+  roles:
+    - controller
+    - broker
+
+# Dedicated controllers
+spec:
+  roles:
+    - controller
+
+# Dedicated brokers
+spec:
+  roles:
+    - broker
+```
+
+A cluster can have multiple node pools — one pool for controllers and another for brokers — allowing independent scaling and different storage/resource configs per role.
+
 ### Kafka Topic Replications
 
 - https://www.conduktor.io/kafka/kafka-topic-replication
