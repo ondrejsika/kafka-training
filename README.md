@@ -632,11 +632,87 @@ watch -n 0.3 kubectl get -f examples/strimzi_single_node/topics/kafka_topic_hell
 
 ## Large HA Kafka Cluster
 
-- 3 Zookeepers
-- 3 Brokers with 4 disks
+- 3 nodes (combined controller + broker, KRaft)
+- 4 disks per node (JBOD)
+
+Apply:
 
 ```
-kubectl apply -f examples/strimzi/kafka-3.yml
+kubectl apply -f examples/strimzi_cluster
+```
+
+See pods:
+
+```
+kubectl get kafka,pod -n kafka
+```
+
+or watch
+
+```
+watch -n 0.3 kubectl get kafka,pod -n kafka
+```
+
+Get Bootstrap servers using slu
+
+```
+slu kafka all
+```
+
+Using kubectl
+
+```
+kubectl describe -n kafka -f examples/strimzi_cluster/kafka.yml | grep "Bootstrap Servers"
+```
+
+Get all in json
+
+```
+kubectl get -n kafka kafka my-cluster -o json | jq '.status.listeners[] | {name, bootstrapServers}'
+```
+
+Get plain
+
+```
+kubectl get -n kafka kafka my-cluster -o json | jq -r '.status.listeners[] | select(.name == "plain") | .bootstrapServers'
+```
+
+Get LB
+
+```
+kubectl get -n kafka kafka my-cluster -o json | jq -r '.status.listeners[] | select(.name == "lb") | .bootstrapServers'
+```
+
+Connect kaf from cluster
+
+```
+kaf config add-cluster my-cluster -b my-cluster-kafka-bootstrap.kafka:9092
+kaf config use-cluster my-cluster
+```
+
+Connect kaf from outside
+
+```
+kaf config add-cluster my-cluster -b $(slu kafka bootstrap -k my-cluster -l lb)
+kaf config use-cluster my-cluster
+```
+
+Create topic
+
+```
+kubectl apply -f examples/strimzi_cluster/topics/kafka_topic_hello.yml
+```
+
+Get topic
+
+```
+kubectl get -f examples/strimzi_cluster/topics/kafka_topic_hello.yml
+```
+
+Watch topic
+
+```
+watch -n 0.3 kubectl get -f examples/strimzi_cluster/topics/kafka_topic_hello.yml
 ```
 
 ## Kafka Auth Example
