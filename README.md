@@ -182,6 +182,8 @@ Key concepts:
 
 - https://www.conduktor.io/kafka/kafka-brokers
 
+A **broker** is a single Kafka server process identified by a unique integer ID. Multiple brokers form a cluster, and partitions are distributed across them — so both data and request load are spread horizontally. Adding more brokers increases storage capacity and throughput without downtime.
+
 ![](./images/kafka_brokers.webp)
 
 ![](./images/kafka_brokers_partitions.webp)
