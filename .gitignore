@@ -10,6 +10,7 @@
 *.backup
 .env
 *.local.md
+*.local.txt
 
 # NodeJS
 node_modules
