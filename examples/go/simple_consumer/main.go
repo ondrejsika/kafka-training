@@ -9,8 +9,8 @@ import (
 )
 
 const BROKER_ADDR = "127.0.0.1:9092"
-const TOPIC = "example_simple"
-const GROUP_ID = "example_simple"
+const TOPIC = "simple"
+const GROUP_ID = "simple_go"
 
 func main() {
 	r := kafka.NewReader(kafka.ReaderConfig{
