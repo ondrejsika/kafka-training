@@ -333,6 +333,199 @@ listeners:
 
 Each listener type (`internal`, `loadbalancer`, `nodeport`, `ingress`, `route`) results in a different Kubernetes service and a different advertised address — Strimzi handles the advertised.listeners wiring for you.
 
+### Kafka Cluster Parameters (Strimzi)
+
+In Strimzi, cluster configuration is split across two resources:
+
+- **`Kafka` CR** — broker-level Kafka params go under `spec.kafka.config`
+- **`KafkaNodePool` CR** — storage, replicas, roles, and compute resources go here
+
+Strimzi manages several params automatically and will **reject** any attempt to set them manually in `spec.kafka.config`: `log.dirs`, `listeners`, `advertised.listeners`, `broker.id`, `node.id`, `controller.quorum.voters`, `inter.broker.listener.name`. Configure these via the dedicated CR fields instead.
+
+#### Retention & Cleanup (`spec.kafka.config`)
+
+| Parameter | Default | Description |
+|---|---|---|
+| `log.retention.ms` | `604800000` (7 days) | How long to keep messages before deletion. Set to `-1` for unlimited. Overrides `log.retention.hours`. |
+| `log.retention.bytes` | `-1` (unlimited) | Max size of a single partition before old segments are deleted. `-1` disables size-based deletion. |
+| `log.segment.bytes` | `1073741824` (1 GB) | Max size of a single log segment file. Smaller = faster cleanup cycles. |
+| `log.cleanup.policy` | `delete` | `delete` — remove old segments by time/size; `compact` — keep only the latest value per key; `delete,compact` — both. |
+
+#### Replication & Durability (`spec.kafka.config`)
+
+| Parameter | Default | Description |
+|---|---|---|
+| `default.replication.factor` | `1` | Default replication factor for auto-created topics. Set to `3` in production. |
+| `min.insync.replicas` | `1` | Minimum ISR replicas that must acknowledge a write when `acks=all`. Set to `2` in production (tolerates one broker failure). |
+| `offsets.topic.replication.factor` | `3` | Replication factor for the internal `__consumer_offsets` topic. Must be ≤ number of brokers. |
+| `transaction.state.log.replication.factor` | `3` | Replication factor for the internal transaction log topic. |
+| `transaction.state.log.min.isr` | `2` | Min ISR for the transaction log — set to the same value as `min.insync.replicas`. |
+| `unclean.leader.election.enable` | `false` | If `true`, allows an out-of-sync replica to become leader (risks data loss). Keep `false` in production. |
+
+#### Topic Defaults (`spec.kafka.config`)
+
+| Parameter | Default | Description |
+|---|---|---|
+| `num.partitions` | `1` | Default partition count for auto-created topics. |
+| `auto.create.topics.enable` | `true` | Allow producers to auto-create topics. Disable in production to prevent topic sprawl. |
+| `delete.topic.enable` | `true` | Allow topic deletion via the Admin API. |
+| `message.max.bytes` | `1048588` (~1 MB) | Max size of a message the broker accepts. If raised, also increase `replica.fetch.max.bytes` and consumer `fetch.max.bytes`. |
+| `compression.type` | `producer` | Broker-side compression. `producer` preserves the producer's compression. `lz4`/`snappy`/`zstd` re-compresses on the broker. |
+
+#### Performance & I/O (`spec.kafka.config`)
+
+| Parameter | Default | Description |
+|---|---|---|
+| `num.network.threads` | `3` | Threads handling network requests. Rule of thumb: ~3× number of CPU cores. |
+| `num.io.threads` | `8` | Threads for disk I/O. Rule of thumb: 1 per disk, minimum 8. |
+| `replica.fetch.max.bytes` | `1048576` (1 MB) | Max bytes fetched per partition during broker-to-broker replication. Must be ≥ `message.max.bytes`. |
+| `socket.send.buffer.bytes` | `102400` | TCP send buffer. Set to `-1` to use the OS default. |
+| `socket.receive.buffer.bytes` | `102400` | TCP receive buffer. Set to `-1` to use the OS default. |
+
+#### Storage (`KafkaNodePool.spec.storage`)
+
+Storage is defined in the `KafkaNodePool`, not in the `Kafka` CR. Strimzi supports JBOD — multiple persistent volumes per node for better I/O parallelism.
+
+| Field | Description |
+|---|---|
+| `type: jbod` | JBOD (Just a Bunch of Disks) — attach multiple volumes per node. Each volume becomes a separate log directory. |
+| `type: persistent-claim` | Single persistent volume per node. |
+| `size` | PVC size (e.g. `10Gi`, `100Gi`). |
+| `deleteClaim` | Whether to delete the PVC when the node is removed. `false` is safer in production. |
+| `kraftMetadata: shared` | Which volume stores KRaft metadata (required for one volume when using combined controller+broker nodes). |
+
+#### Example: Development (single node)
+
+```yaml
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: my-dev
+  namespace: kafka
+spec:
+  kafka:
+    version: 4.2.0
+    metadataVersion: 4.2-IV1
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+      log.retention.hours: 24
+      auto.create.topics.enable: "true"
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: my-dev
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: my-dev
+spec:
+  replicas: 1
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        deleteClaim: true
+        kraftMetadata: shared
+```
+
+#### Example: Production cluster (3 nodes, JBOD)
+
+```yaml
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: my-prod
+  namespace: kafka
+spec:
+  kafka:
+    version: 4.2.0
+    metadataVersion: 4.2-IV1
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+    config:
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.retention.hours: 168
+      log.retention.bytes: -1
+      log.segment.bytes: 1073741824
+      unclean.leader.election.enable: "false"
+      auto.create.topics.enable: "false"
+      message.max.bytes: 10485760
+      replica.fetch.max.bytes: 10485760
+      num.network.threads: 6
+      num.io.threads: 16
+      compression.type: producer
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: my-prod
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: my-prod
+spec:
+  replicas: 3
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 1Gi
+        deleteClaim: false
+        kraftMetadata: shared
+      - id: 1
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+      - id: 2
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+      - id: 3
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+  resources:
+    requests:
+      memory: 4Gi
+      cpu: "2"
+    limits:
+      memory: 8Gi
+      cpu: "4"
+
 ## Kafka CLI
 
 The main CLI tools for interacting with Kafka are the built-in shell scripts (`kafka-topics.sh`, `kafka-console-producer.sh`, etc.) bundled with every Kafka installation, and `kaf` — a modern, developer-friendly alternative.
