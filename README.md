@@ -386,13 +386,47 @@ Strimzi manages several params automatically and will **reject** any attempt to 
 
 Storage is defined in the `KafkaNodePool`, not in the `Kafka` CR. Strimzi supports JBOD — multiple persistent volumes per node for better I/O parallelism.
 
+**JBOD (Just a Bunch of Disks)** means Kafka uses multiple independent disks directly, without combining them into RAID or a logical volume. Kafka gets a separate `log.dir` path for each volume and spreads partitions across all of them automatically.
+
+Why JBOD over a single large volume:
+- Each disk does its own I/O independently — no single disk is a bottleneck
+- If one disk fails, only the partitions on that disk are affected; the rest keep working
+- Easy to add capacity by adding more volumes to the pool
+
+```yaml
+# Single disk — all partitions on one PVC (dev / simple setups)
+storage:
+  type: persistent-claim
+  size: 300Gi
+  kraftMetadata: shared
+```
+
+```yaml
+# JBOD — 3 disks, partitions spread across all three (production)
+storage:
+  type: jbod
+  volumes:
+    - id: 0
+      type: persistent-claim
+      size: 1Gi
+      kraftMetadata: shared  # KRaft metadata goes here
+    - id: 1
+      type: persistent-claim
+      size: 100Gi
+    - id: 2
+      type: persistent-claim
+      size: 100Gi
+```
+
+Both examples have similar total capacity, but JBOD gives you parallel I/O across all disks. On Kubernetes each volume becomes a separate PVC backed by a separate physical/cloud volume (EBS, GCP PD, etc.).
+
 | Field | Description |
 |---|---|
-| `type: jbod` | JBOD (Just a Bunch of Disks) — attach multiple volumes per node. Each volume becomes a separate log directory. |
+| `type: jbod` | Multiple volumes per node, each becomes an independent log directory. |
 | `type: persistent-claim` | Single persistent volume per node. |
 | `size` | PVC size (e.g. `10Gi`, `100Gi`). |
 | `deleteClaim` | Whether to delete the PVC when the node is removed. `false` is safer in production. |
-| `kraftMetadata: shared` | Which volume stores KRaft metadata (required for one volume when using combined controller+broker nodes). |
+| `kraftMetadata: shared` | Which volume stores KRaft metadata. Required on exactly one volume per node when using combined controller+broker roles. |
 
 #### Example: Development (single node)
 
