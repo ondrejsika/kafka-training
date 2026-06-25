@@ -842,6 +842,14 @@ Both are open-source. Apache Kafka is Apache 2.0. Redpanda Community Edition is 
 - Using managed deployments like Strimzi (Kubernetes) or MSK (AWS)
 - Need maximum community support, documentation, and enterprise tooling breadth
 
+### Redpanda in Strimzi
+
+There is **no support for Redpanda in Strimzi**.
+
+Strimzi is designed specifically for Apache Kafka and its ecosystem. While Redpanda is Kafka API compatible, it has different operational characteristics and configuration requirements that Strimzi does not currently accommodate.
+
+Redpanda has its own operator for Kubernetes deployments, and if you want to run Redpanda in Kubernetes, you should use the Redpanda Operator instead of Strimzi.
+
 ## Kafka Mirror Maker 2
 
 Kafka MirrorMaker2 is a tool for replicating data between Kafka clusters, acting as a bridge that consumes messages from a source cluster and produces them into a destination cluster.
