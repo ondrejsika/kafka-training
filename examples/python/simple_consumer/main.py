@@ -1,8 +1,15 @@
 from confluent_kafka import Consumer
+import os
 
-BROKER_ADDR = "127.0.0.1:9092"
-TOPIC = "simple"
-GROUP_ID = "simple_py"
+
+DEFAULT_BROKER_ADDR = "127.0.0.1:9092"
+DEFAULT_TOPIC = "simple"
+DEFAULT_GROUP_ID = "simple_py"
+
+BROKER_ADDR = os.environ.get("BROKER_ADDR", DEFAULT_BROKER_ADDR)
+TOPIC = os.environ.get("TOPIC", DEFAULT_TOPIC)
+GROUP_ID = os.environ.get("GROUP_ID", DEFAULT_GROUP_ID)
+
 
 def main():
     c = Consumer({

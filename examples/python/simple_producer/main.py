@@ -1,8 +1,13 @@
 from confluent_kafka import Producer
 import time
+import os
 
-BROKER_ADDR = "127.0.0.1:9092"
-TOPIC = "simple"
+
+DEFAULT_BROKER_ADDR = "127.0.0.1:9092"
+DEFAULT_TOPIC = "simple"
+
+BROKER_ADDR = os.environ.get("BROKER_ADDR", DEFAULT_BROKER_ADDR)
+TOPIC = os.environ.get("TOPIC", DEFAULT_TOPIC)
 
 
 def main():
