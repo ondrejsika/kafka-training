@@ -559,6 +559,7 @@ spec:
     limits:
       memory: 8Gi
       cpu: "4"
+```
 
 ## Run Single Node Kafka in Docker
 
