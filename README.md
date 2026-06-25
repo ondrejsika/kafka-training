@@ -791,6 +791,57 @@ In 2023, Confluent moved some components from Apache 2.0 to the **Confluent Comm
 - **MSK** (AWS managed Kafka)
 - **Azure Event Hubs** (Kafka protocol compatible)
 
+## Apache Kafka vs Redpanda
+
+**Redpanda** is a Kafka-compatible streaming platform rewritten from scratch in C++ by Redpanda Data. It implements the Kafka wire protocol, so existing producers, consumers, Kafka Connect, and most tooling work without code changes — but the internals are completely different.
+
+### Architecture
+
+**Apache Kafka** is a JVM-based application with all the associated tuning (heap sizing, GC configuration, startup time).
+
+**Redpanda** is a single C++ binary with no JVM and no external dependencies. It uses the Raft consensus algorithm natively for both data replication and metadata — every node participates in Raft directly, eliminating the need for a separate coordination layer.
+
+### Performance
+
+Redpanda uses a thread-per-core architecture (Seastar framework) that avoids thread contention and context switches. This typically results in lower and more predictable tail latencies compared to Kafka under high load — Redpanda benchmarks consistently show lower p99 latencies for equivalent hardware.
+
+Kafka performs extremely well at high throughput with proper tuning (batching, compression, async sends), but JVM GC pauses can introduce latency spikes under pressure.
+
+### Kafka API Compatibility
+
+Redpanda implements the Kafka wire protocol. Kafka clients, Kafka Connect, ksqlDB, Kafka Streams, and MirrorMaker 2 all work against Redpanda. Some very recent Kafka protocol versions or niche features may have a compatibility lag.
+
+### Operational Simplicity
+
+**Redpanda**: single binary deployment, no JVM tuning, no ZooKeeper. Easier to run in dev/staging and for smaller ops teams.
+
+**Kafka**: More operational knowledge required — JVM GC tuning, broker configuration, and (pre-KRaft) ZooKeeper management. KRaft simplifies the topology but Kafka still requires more expertise to run well at scale.
+
+### Ecosystem
+
+Kafka has a significantly larger ecosystem: Confluent, Strimzi, MSK, hundreds of connectors, Schema Registry, ksqlDB, and years of production hardening at massive scale.
+
+Redpanda is newer but growing fast. Redpanda Cloud (managed), Redpanda Console (web UI), built-in Schema Registry, and Kafka Connect compatibility are all available. The community and tooling ecosystem is smaller but catching up quickly.
+
+### Licensing
+
+Both are open-source. Apache Kafka is Apache 2.0. Redpanda Community Edition is source-available (BSL 1.1); Redpanda Enterprise adds tiered storage, RBAC, and commercial support.
+
+### When to Choose Redpanda
+
+- You want Kafka API compatibility without JVM operational overhead
+- Low-latency (predictable p99) is a hard requirement
+- Small team with limited Kafka ops experience
+- Edge or embedded deployments where a single binary matters
+- Greenfield projects where ecosystem lock-in is not a concern
+
+### When to Stick with Kafka
+
+- Already running Kafka at scale with proven operations
+- You rely on the full Confluent ecosystem (Schema Registry, ksqlDB, Confluent Hub connectors)
+- Using managed deployments like Strimzi (Kubernetes) or MSK (AWS)
+- Need maximum community support, documentation, and enterprise tooling breadth
+
 ## Kafka Mirror Maker 2
 
 Kafka MirrorMaker2 is a tool for replicating data between Kafka clusters, acting as a bridge that consumes messages from a source cluster and produces them into a destination cluster.
