@@ -777,6 +777,95 @@ MM2 consists of three internal connectors — MirrorSourceConnector for message 
 
 Common use cases include active-passive disaster recovery, multi-region data aggregation, and live cluster migrations, making MirrorMaker an essential component in any multi-cluster Kafka architecture.
 
+**Topic naming** — MM2 prefixes replicated topics with the source cluster alias. A topic `my-topic` on `source-cluster` becomes `source-cluster.my-topic` on the target cluster. Consumers on the target side must subscribe to the prefixed name.
+
+### MirrorMaker 2 Example (Strimzi)
+
+The example in `examples/mm2` runs two single-node Kafka clusters (`source-cluster` and `target-cluster`) and a `KafkaMirrorMaker2` resource that replicates `my-topic` from source to target. A producer writes to the source and a consumer reads from the target to verify replication.
+
+```
+source-cluster          MirrorMaker2          target-cluster
+  my-topic    ──────────────────────────>  source-cluster.my-topic
+  (producer)                                   (consumer)
+```
+
+Apply everything:
+
+```
+kubectl apply -f examples/mm2
+```
+
+Watch all resources come up:
+
+```
+watch -n 0.3 kubectl get kafka,kafkamirrormaker2,pod -n kafka
+```
+
+The `KafkaMirrorMaker2` resource connects to both clusters and starts replicating:
+
+```yaml
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaMirrorMaker2
+metadata:
+  name: mm2
+  namespace: kafka
+spec:
+  version: 4.2.0
+  replicas: 1
+  target:
+    alias: target-cluster
+    bootstrapServers: target-cluster-kafka-bootstrap.kafka.svc:9092
+    groupId: mm2
+    configStorageTopic: mm2-configs
+    offsetStorageTopic: mm2-offsets
+    statusStorageTopic: mm2-status
+    config:
+      config.storage.replication.factor: 1
+      offset.storage.replication.factor: 1
+      status.storage.replication.factor: 1
+  mirrors:
+    - source:
+        alias: source-cluster
+        bootstrapServers: source-cluster-kafka-bootstrap.kafka.svc:9092
+      sourceConnector:
+        tasksMax: 1
+        config:
+          replication.factor: 1
+          offset-syncs.topic.replication.factor: 1
+          sync.topic.acls.enabled: "false"
+          topics: "my-topic"          # regex — mirror only this topic
+      checkpointConnector:
+        config:
+          checkpoints.topic.replication.factor: 1
+          sync.group.offsets.enabled: "true"   # sync consumer offsets to target
+```
+
+Key fields:
+
+- `target` — the cluster MM2 connects to as a Kafka Connect worker; internal MM2 state topics are created here
+- `mirrors[].source` — the cluster to read from; `alias` becomes the topic prefix on the target
+- `sourceConnector.config.topics` — regex controlling which topics to replicate
+- `sync.group.offsets.enabled` — translates consumer group offsets to the target cluster so consumers can resume from the correct position after a failover
+- `sync.topic.acls.enabled` — set to `false` if the target cluster has different ACL setup
+
+The producer writes to `source-cluster` and the consumer reads `source-cluster.my-topic` from `target-cluster`:
+
+```yaml
+# producer — writes to source
+env:
+  - name: KAFKA_BROKER_ADDRESS
+    value: source-cluster-kafka-bootstrap.kafka.svc:9092
+  - name: KAFKA_TOPIC
+    value: my-topic
+
+# consumer — reads replicated topic from target
+env:
+  - name: KAFKA_BROKER_ADDRESS
+    value: target-cluster-kafka-bootstrap.kafka.svc:9092
+  - name: KAFKA_TOPIC
+    value: source-cluster.my-topic   # prefixed with source alias
+```
+
 ## Kafka Bridge
 
 Kafka Bridge is a component that provides a REST API interface to Apache Kafka, allowing HTTP-based clients to interact with Kafka without needing a native Kafka client.
