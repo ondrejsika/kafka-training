@@ -1324,53 +1324,72 @@ Each Debezium event is a Kafka message with a structured envelope:
 
 When a connector starts for the first time it performs an **initial snapshot** — reading the current state of all rows and emitting a `r` (read) event for each. After the snapshot completes it switches to **streaming** mode, tailing the transaction log for ongoing changes. This ensures consumers get a complete, consistent view of the data from day one.
 
-### Debezium Example (Docker Compose)
+### Debezium Example on Kubernetes (Strimzi)
 
-The example in `examples/debezium` runs Kafka (KRaft, single node), Kafka Connect with Debezium, and PostgreSQL locally via Docker Compose.
+The example in `examples/debezium` deploys Kafka Connect with both the Debezium PostgreSQL and MongoDB connectors on Kubernetes using Strimzi. It includes continuously-writing data generators and a consumer that prints all CDC events.
 
-Start everything:
+**Directory layout:**
+
+```
+examples/debezium/
+├── docker/
+│   ├── debezium/        # custom Kafka Connect image with both connectors installed
+│   ├── postgres-writer/ # Python service that inserts rows into PostgreSQL every 2 s
+│   ├── mongo-writer/    # Python service that inserts documents into MongoDB every 2 s
+│   └── consumer/        # Python service that prints all Debezium events from Kafka
+└── k8s/
+    ├── connect_debezium.yml   # KafkaConnect CR (uses custom image)
+    ├── connector_postgres.yml # KafkaConnector CR for PostgreSQL
+    ├── connector_mongodb.yml  # KafkaConnector CR for MongoDB
+    ├── postgres.yml           # PostgreSQL deployment (wal_level=logical, tables: users, pets)
+    ├── mongodb.yml            # MongoDB deployment (replica set rs0, required for change streams)
+    ├── postgres-writer.yml    # postgres-writer deployment
+    ├── mongo-writer.yml       # mongo-writer deployment
+    └── consumer.yml           # consumer deployment
+```
+
+**Build and push all images:**
 
 ```
 cd examples/debezium
-make up
+make docker-build-and-push
 ```
 
-Wait for Connect to be ready, then register the PostgreSQL connector:
+Images are pushed to `ttl.sh` (temporary registry, valid for 24 hours):
+- `ttl.sh/kafka-connect-debezium:v2` — Strimzi Kafka image extended with Debezium PostgreSQL and MongoDB connector plugins
+- `ttl.sh/debezium-example-postgres-writer:v2`
+- `ttl.sh/debezium-example-mongo-writer:v2`
+- `ttl.sh/debezium-example-consumer:v1`
+
+**Deploy everything:**
 
 ```
-make register-connector
+make deploy
 ```
 
-This registers the connector defined in `connector.json`, which watches the `public.users` table in the `demo` database. Debezium will snapshot the two seed rows immediately, then stream all future changes.
+This applies all manifests in `k8s/`: PostgreSQL, MongoDB, KafkaConnect, both KafkaConnectors, and the writer/consumer deployments.
 
-Consume events from the topic:
+**What the connectors do:**
 
-```
-make consume
-```
+`connector_postgres.yml` configures Debezium to:
+- Connect to the `example` database on `postgres.kafka.svc:5432`
+- Watch `public.users` and `public.pets` tables
+- Publish events to topics prefixed with `dbz.postgres.example` — e.g. `dbz.postgres.example.public.users`
 
-Open a psql session and make changes to see them appear in Kafka in real time:
+`connector_mongodb.yml` configures Debezium to:
+- Connect to `mongodb.kafka.svc:27017` (replica set `rs0`)
+- Watch `example.users` and `example.pets` collections
+- Publish events to topics prefixed with `dbz.mongo` — e.g. `dbz.mongo.example.users`
 
-```
-make psql
-```
+The consumer deployment subscribes to all topics matching `^dbz\..*` and logs each event.
 
-```sql
-INSERT INTO users (name, email) VALUES ('Charlie', 'charlie@example.com');
-UPDATE users SET name = 'Alicia' WHERE id = 1;
-DELETE FROM users WHERE id = 2;
-```
+**Consume events manually:**
 
-Check connector status:
-
-```
-make status-connector
-```
-
-Stop and remove everything including volumes:
-
-```
-make down-with-volumes
+```bash
+kubectl -n kafka exec -it <kafka-pod> -- bin/kafka-console-consumer.sh \
+  --bootstrap-server ceps-kafka-bootstrap.kafka.svc:9092 \
+  --topic dbz.postgres.example.public.users \
+  --from-beginning
 ```
 
 ## Kafka FAQ
